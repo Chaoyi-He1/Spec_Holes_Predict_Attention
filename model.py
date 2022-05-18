@@ -92,7 +92,7 @@ class Transformer_model(nn.Module):
         if epoch % config.save_interval == 0:
             self.save(epoch)
 
-    def test_or_validate(self, encoder_inputs, decoder_inputs, y_train, checkpoint_num_list):
+    def test_or_validate(self, encoder_inputs, decoder_inputs, y, checkpoint_num_list):
         self.Transformer_autoencoder.eval()
         print('### Test or Validation ###')
 
@@ -109,5 +109,10 @@ class Transformer_model(nn.Module):
                 out = torch.argmax(out, dim=-1)
                 preds.append(out.detach().cpu().numpy())
 
-            preds = np.reshape(preds, (-1, config.input_num_symbol, config.input_size))
-
+            preds = np.reshape(preds, (-1, config.output_size))
+            sum = 0
+            for i in range(y.shape[0]):
+                if preds[i] == (y[i]):
+                    sum += 1
+            accuracy = sum / y.shape[0]
+            print('Test accuracy: {:.4f}'.format(accuracy))
