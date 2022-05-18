@@ -24,6 +24,6 @@ def data_reader(train=False, val=False, test=False):
 if __name__ == '__main__':
     dic_data = data_reader(train=True, val=False, test=True)
 
-    CNN_model = model.CNN_model()
-    # CNN_model.train(x_train=dic_data["training_input"], y_train=dic_data["training_type"], act_mode="tanh")
-    CNN_model.test_or_validate(x=dic_data["testing_input"], y=dic_data["testing_type"], act_mode="tanh", checkpoint_num_list=[100])
+    Transformer_model = model.Transformer_model()
+    # Transformer_model.train(x_train=dic_data["training_input"], y_train=dic_data["training_type"], act_mode="tanh")
+    Transformer_model.test_or_validate(x=dic_data["testing_input"], y=dic_data["testing_type"], act_mode="tanh", checkpoint_num_list=[100])
