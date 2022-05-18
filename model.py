@@ -110,4 +110,4 @@ class Transformer_model(nn.Module):
                 preds.append(out.detach().cpu().numpy())
 
             preds = np.reshape(preds, (-1, config.input_num_symbol, config.input_size))
-            
+
