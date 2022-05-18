@@ -114,12 +114,13 @@ class Transformer_net(nn.Module):
             self.encoder_module.append(Transformer_Encoder_Block(act_mode=config.coder_act))
         for _ in range(config.num_decoder_block):
             self.decoder_module.append(Transformer_Decoder_Block(act_mode=config.coder_act))
+        self.global_max = nn.MaxPool1d(kernel_size=config.embedded_dim)
+        self.global_ave = nn.AvgPool1d(kernel_size=config.embedded_dim)
         self.MLP_1 = nn.Linear(in_features=config.embedded_dim, out_features=config.decoder_dense_dim)
         self.dropout_1 = nn.Dropout(config.decoder_drop_rate)
         self.MLP_2 = nn.Linear(in_features=config.decoder_dense_dim, out_features=config.decoder_dense_dim)
         self.dropout_2 = nn.Dropout(config.decoder_drop_rate)
-        self.MLP_3 = nn.Linear(in_features=config.decoder_dense_dim, out_features=config.embedded_dim)
-        self.dropout_3 = nn.Dropout(config.decoder_drop_rate)
+        self.MLP_3 = nn.Linear(in_features=config.decoder_dense_dim, out_features=config.output_size)
 
     def forward(self, encoder_inputs, decoder_inputs):
         encoder_outputs = encoder_inputs
@@ -128,7 +129,9 @@ class Transformer_net(nn.Module):
             encoder_outputs = self.encoder_module[i](encoder_outputs)
         for i in range(config.num_decoder_block):
             decoder_outputs = self.decoder_module[i](decoder_outputs, encoder_outputs)
-
+        global_max = torch.reshape(self.global_max(decoder_outputs), (-1, config.input_num_symbol))
+        global_avg = torch.reshape(self.global_ave(decoder_outputs), (-1, config.input_num_symbol))
+        decoder_outputs = torch.cat((global_max, global_avg), dim=1)
         decoder_outputs = self.MLP_1(decoder_outputs)
         if self.act_mode == 'sigmoid':
             decoder_outputs = torch.sigmoid(decoder_outputs)
@@ -154,6 +157,5 @@ class Transformer_net(nn.Module):
             decoder_outputs = torch.relu(decoder_outputs)
         elif self.act_mode == 'tanh':
             decoder_outputs = torch.tanh(decoder_outputs)
-        decoder_outputs = self.dropout_3(decoder_outputs)
 
         return decoder_outputs
