@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 from collections import OrderedDict
 from torchsummary import summary
+import gym
 
 
 class Transformer_model(nn.Module):
@@ -116,3 +117,17 @@ class Transformer_model(nn.Module):
                     sum += 1
             accuracy = sum / y.shape[0]
             print('Test accuracy: {:.4f}'.format(accuracy))
+
+    def save_matrix(self, checkpoint_num_list):
+        self.Transformer_autoencoder.eval()
+        print('### Save Weight Matrices ###')
+
+        isExist = os.path.exists(config.Transformer_weight_save_dir)
+        if not isExist:
+            os.makedirs(config.Transformer_weight_save_dir)
+            print("The new directory is created")
+
+        for checkpoint_num in checkpoint_num_list:
+            checkpoint_file = os.path.join(config.Transformer_dir, 'model-%d.ckpt' % checkpoint_num)
+            self.load(checkpoint_file)
+            for checkpoint_num in checkpoint_num_list:

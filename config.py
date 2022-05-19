@@ -30,7 +30,7 @@ training_next_dir = './Data/training_next.csv'
 training_param_dir = './Data/training_param.csv'
 model_dir = './Model'
 Transformer_dir = model_dir + '/Koopman_whole'
-Transformer_dir_weight_save_dir = Transformer_dir + '/weight_mtx'
+Transformer_weight_save_dir = Transformer_dir + '/weight_mtx'
 
 
 ##-----encoder---------
