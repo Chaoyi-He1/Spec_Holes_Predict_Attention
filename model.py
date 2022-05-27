@@ -130,9 +130,8 @@ class Transformer_model(nn.Module):
         for checkpoint_num in checkpoint_num_list:
             checkpoint_file = os.path.join(config.Transformer_dir, 'model-%d.ckpt' % checkpoint_num)
             self.load(checkpoint_file)
-            for checkpoint_num in checkpoint_num_list:
-                for params in self.Transformer_autoencoder.state_dict():
-                    weight = self.Transformer_autoencoder.state_dict()[params].cpu().numpy()
-                    checkpoint_file = os.path.join(config.Transformer_weight_save_dir,
-                                                   'model-%d-%s.csv' % (checkpoint_num, params.replace(".", "_")))
-                    pd.DataFrame(weight).to_csv(checkpoint_file, header=False, index=False)
+            for params in self.Transformer_autoencoder.state_dict():
+                weight = self.Transformer_autoencoder.state_dict()[params].cpu().numpy()
+                checkpoint_file = os.path.join(config.Transformer_weight_save_dir,
+                                               'model-%d-%s.csv' % (checkpoint_num, params.replace(".", "_")))
+                pd.DataFrame(weight).to_csv(checkpoint_file, header=False, index=False)
