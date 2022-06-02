@@ -19,7 +19,7 @@ class Transformer_model(nn.Module):
                                                                num_decoder_block=config.num_decoder_block,
                                                                act_mode=config.MLP_act).to(
             device=config.device)
-        self.criterion = nn.BCELoss().to(device=config.device)
+        self.criterion = nn.CrossEntropyLoss().to(device=config.device)
         self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
                                           weight_decay=config.weight_decay)
 
@@ -35,7 +35,7 @@ class Transformer_model(nn.Module):
         self.Transformer_autoencoder.load_state_dict(ckpt, strict=True)
         print("Restored model parameters from {}".format(checkpoint_name))
 
-    def train(self, encoder_inputs, decoder_inputs, y_train):
+    def train(self, encoder_inputs, decoder_inputs, y_train, y_label):
         self.Transformer_autoencoder.train()
         # summary(self.Transformer_autoencoder, [(32, 256), (32, 256)])
 
@@ -49,6 +49,7 @@ class Transformer_model(nn.Module):
             curr_encoder_inputs = encoder_inputs[shuffle_index]
             curr_decoder_inputs = decoder_inputs[shuffle_index]
             curr_y_train = y_train[shuffle_index]
+            curr_y_label = y_label[shuffle_index]
             loss_ = 0
 
             if epoch == 1:
@@ -90,9 +91,14 @@ class Transformer_model(nn.Module):
                 print('Batch {:d}/{:d} Loss {:.6f}'.format(i, num_batches, loss), end='\r', flush=True)
 
             duration = time.time() - start_time
-            acc = torch.div(torch.sum(
-                torch.eq(torch.argmax(self.Transformer_autoencoder(curr_encoder_inputs, curr_decoder_inputs), dim=-1),
-                         curr_y_train)), num_samples)
+            test = torch.eq(torch.argmax(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:500, :, :],
+                                                                                   dtype=torch.float,
+                                                                                   device=config.device),
+                                                                      torch.tensor(curr_decoder_inputs[:500, :, :],
+                                                                                   dtype=torch.float,
+                                                                                   device=config.device)), dim=-1),
+                            torch.tensor(curr_y_label[:500], device=config.device))
+            acc = torch.div(torch.sum(test), num_samples)
             print('Epoch {:d} Loss {:.6f} Accuracy {:.6f} Duration {:.3f} seconds.'.format(epoch, loss_ / num_batches,
                                                                                            acc,
                                                                                            duration))

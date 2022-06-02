@@ -27,4 +27,5 @@ if __name__ == '__main__':
     Transformer_model = model.Transformer_model()
     Transformer_model.train(encoder_inputs=dic_data["training_input"],
                             decoder_inputs=dic_data["training_input"],
-                            y_train=dic_data["training_type"])
+                            y_train=dic_data["training_type_one_hot"],
+                            y_label=dic_data["training_type"])

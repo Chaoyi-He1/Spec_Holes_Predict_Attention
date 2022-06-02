@@ -11,14 +11,14 @@ class Transformer_Encoder_Block(nn.Module):
         self.attention_layer = nn.MultiheadAttention(embed_dim=config.embedded_dim, num_heads=config.num_heads,
                                                      dropout=config.encoder_drop_rate, batch_first=True)
         if config.encoder_norm_mode == 'layer':
-            self.norm_1 = nn.LayerNorm()
+            self.norm_1 = nn.LayerNorm(normalized_shape=config.embedded_dim)
         elif config.encoder_norm_mode == 'batch':
             self.norm_1 = nn.BatchNorm1d(num_features=config.input_num_symbol)
         self.MLP_1 = nn.Linear(in_features=config.embedded_dim, out_features=config.encoder_dense_dim)
         self.dropout = nn.Dropout(config.encoder_drop_rate)
         self.MLP_2 = nn.Linear(in_features=config.encoder_dense_dim, out_features=config.embedded_dim)
         if config.encoder_norm_mode == 'layer':
-            self.norm_2 = nn.LayerNorm()
+            self.norm_2 = nn.LayerNorm(normalized_shape=config.embedded_dim)
         elif config.encoder_norm_mode == 'batch':
             self.norm_2 = nn.BatchNorm1d(num_features=config.input_num_symbol)
 
@@ -55,20 +55,20 @@ class Transformer_Decoder_Block(nn.Module):
         if config.decoder_norm_mode == 'batch':
             self.norm_1 = nn.BatchNorm1d(num_features=config.input_num_symbol)
         elif config.decoder_norm_mode == 'layer':
-            self.norm_1 = nn.LayerNorm()
+            self.norm_1 = nn.LayerNorm(normalized_shape=config.embedded_dim)
         self.attention_layer_2 = nn.MultiheadAttention(embed_dim=config.embedded_dim, num_heads=config.num_heads,
                                                        dropout=config.decoder_drop_rate, batch_first=True)
         if config.decoder_norm_mode == 'batch':
             self.norm_2 = nn.BatchNorm1d(num_features=config.input_num_symbol)
         elif config.decoder_norm_mode == 'layer':
-            self.norm_2 = nn.LayerNorm()
+            self.norm_2 = nn.LayerNorm(normalized_shape=config.embedded_dim)
         self.MLP_1 = nn.Linear(in_features=config.embedded_dim, out_features=config.decoder_dense_dim)
         self.dropout = nn.Dropout(config.decoder_drop_rate)
         self.MLP_2 = nn.Linear(in_features=config.decoder_dense_dim, out_features=config.embedded_dim)
         if config.decoder_norm_mode == 'batch':
             self.norm_3 = nn.BatchNorm1d(num_features=config.input_num_symbol)
         elif config.decoder_norm_mode == 'layer':
-            self.norm_3 = nn.LayerNorm()
+            self.norm_3 = nn.LayerNorm(normalized_shape=config.embedded_dim)
 
     def decoder_mask(self, inputs):
         num_seq = inputs.size()[1]
