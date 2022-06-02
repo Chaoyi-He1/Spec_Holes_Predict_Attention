@@ -53,16 +53,17 @@ class Transformer_model(nn.Module):
             loss_ = 0
 
             if epoch == 1:
-                config.learning_rate = 0.001
+                config.learning_rate = 0.01
                 self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(),
-                                                  lr=config.learning_rate)
+                                                  lr=config.learning_rate,
+                                                  weight_decay=config.weight_decay)
             elif epoch == int(config.max_epoch * 0.5):
-                config.learning_rate = 0.0005
+                config.learning_rate = 0.005
                 self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(),
                                                   lr=config.learning_rate,
                                                   weight_decay=config.weight_decay)
             elif epoch == int(config.max_epoch * 0.8):
-                config.learning_rate = 0.0001
+                config.learning_rate = 0.001
                 self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(),
                                                   lr=config.learning_rate,
                                                   weight_decay=config.weight_decay)
@@ -96,8 +97,8 @@ class Transformer_model(nn.Module):
                                                                      torch.tensor(curr_decoder_inputs[:500, :, :],
                                                                                   dtype=torch.float,
                                                                                   device=config.device))),
-                            torch.tensor(curr_y_label[:500], device=config.device))
-            acc = torch.div(torch.sum(test), num_samples)
+                            torch.tensor(np.reshape(curr_y_label[:500], (-1, 1)), device=config.device))
+            acc = torch.div(torch.sum(test), 500)
             print('Epoch {:d} Loss {:.6f} Accuracy {:.6f} Duration {:.3f} seconds.'.format(epoch, loss_ / num_batches,
                                                                                            acc,
                                                                                            duration))

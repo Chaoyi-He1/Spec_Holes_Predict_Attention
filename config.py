@@ -1,4 +1,3 @@
-import numpy as np
 import torch
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -14,13 +13,13 @@ sig_shape = [-1, input_num_symbol, input_size]
 weight_decay = 0
 learning_rate = 0.1
 save_interval = 100
-max_epoch = 800
+max_epoch = 2000
 
 embedded_dim = input_size
 num_heads = 16
 
 ##-----activation-----
-coder_act = 'tanh'
+coder_act = 'relu'
 MLP_act = 'sigmoid'
 
 ##-----file direction--
