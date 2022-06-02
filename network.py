@@ -105,10 +105,11 @@ class Transformer_Decoder_Block(nn.Module):
 
 
 class Transformer_net(nn.Module):
-    def __init__(self, num_encoder_block=16, num_decoder_block=16):
+    def __init__(self, num_encoder_block=16, num_decoder_block=16, act_mode='relu'):
         super(Transformer_net, self).__init__()
         self.num_encoder_block = num_encoder_block
         self.num_decoder_block = num_decoder_block
+        self.act_mode = act_mode
         self.encoder_module = nn.ModuleList()
         self.decoder_module = nn.ModuleList()
         for _ in range(config.num_encoder_block):

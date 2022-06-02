@@ -21,8 +21,7 @@ num_heads = 16
 
 ##-----activation-----
 coder_act = 'tanh'
-koop_act = 'relu'
-param_act = 'relu'
+MLP_act = 'relu'
 
 ##-----file direction--
 training_data_path = './Data/training.csv'

@@ -16,7 +16,8 @@ class Transformer_model(nn.Module):
     def __init__(self):
         super(Transformer_model, self).__init__()
         self.Transformer_autoencoder = network.Transformer_net(num_encoder_block=config.num_encoder_block,
-                                                               num_decoder_block=config.num_decoder_block).to(
+                                                               num_decoder_block=config.num_decoder_block,
+                                                               act_mode=config.MLP_act).to(
             device=config.device)
         self.criterion = nn.BCELoss().to(device=config.device)
         self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
