@@ -14,13 +14,13 @@ def read_data(file_name):
 
 
 def reshape_data(data_in):
-    data_out = []
-    r, c = np.shape(data_in)
+    # data_out = []
+    # r, c = np.shape(data_in)
     # if config.vec_size != np.shape(np.reshape(data_in[0], config.sig_shape))[2]:
     #     raise ValueError("input length is wrong")   # raise Exception("xxx")
-    for i in range(r):
-        data_out.append(np.reshape(data_in[i], config.sig_shape))
-    return np.array(data_out)
+    # for i in range(r):
+        # data_out.append(np.reshape(data_in[i], config.sig_shape))
+    return np.reshape(data_in, config.sig_shape)
 
 
 def training_read(file_name):

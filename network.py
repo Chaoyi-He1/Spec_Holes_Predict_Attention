@@ -24,7 +24,7 @@ class Transformer_Encoder_Block(nn.Module):
 
     def forward(self, inputs):
         outputs = inputs
-        outputs = self.attention_layer(query=outputs, key=outputs, value=outputs)
+        outputs = self.attention_layer(query=outputs, key=outputs, value=outputs, need_weights=False)[0]
         outputs = self.norm_1(outputs + inputs)
         res = outputs
         outputs = self.MLP_1(outputs)
@@ -79,10 +79,11 @@ class Transformer_Decoder_Block(nn.Module):
 
     def forward(self, inputs, encoder_outputs):
         mask_decoder = self.decoder_mask(inputs)
-        outputs_atten_1 = self.attention_layer_1(query=inputs, key=inputs, value=inputs, attn_mask=mask_decoder)
+        outputs_atten_1 = self.attention_layer_1(query=inputs, key=inputs, value=inputs, attn_mask=mask_decoder,
+                                                 need_weights=False)[0]
         outputs_atten_1 = self.norm_1(outputs_atten_1 + inputs)
         outputs_atten_2 = self.attention_layer_2(query=outputs_atten_1, key=encoder_outputs, value=encoder_outputs,
-                                                 attn_mask=mask_decoder)
+                                                 attn_mask=mask_decoder, need_weights=False)[0]
         outputs_atten_2 = self.norm_2(outputs_atten_2 + outputs_atten_1)
         outputs = self.MLP_1(outputs_atten_2)
         if self.act_mode == 'sigmoid':
@@ -116,7 +117,7 @@ class Transformer_net(nn.Module):
             self.decoder_module.append(Transformer_Decoder_Block(act_mode=config.coder_act))
         self.global_max = nn.MaxPool1d(kernel_size=config.embedded_dim)
         self.global_ave = nn.AvgPool1d(kernel_size=config.embedded_dim)
-        self.MLP_1 = nn.Linear(in_features=config.embedded_dim, out_features=config.decoder_dense_dim)
+        self.MLP_1 = nn.Linear(in_features=int(config.input_num_symbol*2), out_features=config.decoder_dense_dim)
         self.dropout_1 = nn.Dropout(config.decoder_drop_rate)
         self.MLP_2 = nn.Linear(in_features=config.decoder_dense_dim, out_features=config.decoder_dense_dim)
         self.dropout_2 = nn.Dropout(config.decoder_drop_rate)
