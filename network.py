@@ -129,8 +129,9 @@ class Transformer_net(nn.Module):
             encoder_outputs = self.encoder_module[i](encoder_outputs)
         for i in range(config.num_decoder_block):
             decoder_outputs = self.decoder_module[i](decoder_outputs, encoder_outputs)
-        global_max = torch.reshape(self.global_max(decoder_outputs), (-1, config.input_num_symbol))
-        global_avg = torch.reshape(self.global_ave(decoder_outputs), (-1, config.input_num_symbol))
+
+        global_max = torch.reshape(self.global_max(encoder_outputs), (-1, config.input_num_symbol))
+        global_avg = torch.reshape(self.global_ave(encoder_outputs), (-1, config.input_num_symbol))
         decoder_outputs = torch.cat((global_max, global_avg), dim=1)
         decoder_outputs = self.MLP_1(decoder_outputs)
         if self.act_mode == 'sigmoid':

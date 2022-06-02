@@ -19,7 +19,7 @@ class Transformer_model(nn.Module):
                                                                num_decoder_block=config.num_decoder_block).to(
             device=config.device)
         self.criterion = nn.BCELoss().to(device=config.device)
-        self.optimizer = torch.optim.Adam(params=self.CNN_net.Transformer_autoencoder(), lr=config.learning_rate,
+        self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
                                           weight_decay=config.weight_decay)
 
     def save(self, epoch):
@@ -36,7 +36,8 @@ class Transformer_model(nn.Module):
 
     def train(self, encoder_inputs, decoder_inputs, y_train):
         self.Transformer_autoencoder.train()
-        summary(self.Transformer_autoencoder, (1, config.input_num_symbol, config.input_size))
+        summary(self.Transformer_autoencoder, [(-1, config.input_num_symbol, config.input_size),
+                                               (-1, config.input_num_symbol, config.input_size)])
 
         num_samples = encoder_inputs.shape[0]
         num_batches = num_samples // config.batch_size

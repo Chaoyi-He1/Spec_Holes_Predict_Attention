@@ -22,9 +22,9 @@ def data_reader(train=False, val=False, test=False):
 
 
 if __name__ == '__main__':
-    dic_data = data_reader(train=True, val=False, test=True)
+    dic_data = data_reader(train=True, val=False, test=False)
 
     Transformer_model = model.Transformer_model()
-    # Transformer_model.train(x_train=dic_data["training_input"], y_train=dic_data["training_type"])
-    Transformer_model.test_or_validate(x=dic_data["testing_input"], y=dic_data["testing_type"],
-                                       checkpoint_num_list=[100])
+    Transformer_model.train(encoder_inputs=dic_data["training_input"],
+                            decoder_inputs=dic_data["training_input"],
+                            y_train=dic_data["training_type"])
