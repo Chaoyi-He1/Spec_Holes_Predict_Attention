@@ -5,10 +5,10 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 input_size = 256
 input_num_symbol = 32
 batch_size = 128
-output_size = 2
+output_size = 1
 vec_size = input_size * input_num_symbol
 type_position = vec_size
-num_classes = 2
+num_classes = 1
 sig_shape = [-1, input_num_symbol, input_size]
 
 weight_decay = 0
@@ -21,7 +21,7 @@ num_heads = 16
 
 ##-----activation-----
 coder_act = 'tanh'
-MLP_act = 'relu'
+MLP_act = 'sigmoid'
 
 ##-----file direction--
 training_data_path = './Data/training.csv'
