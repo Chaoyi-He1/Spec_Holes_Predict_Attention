@@ -10,7 +10,7 @@ type_position = vec_size
 num_classes = 1
 sig_shape = [-1, input_num_symbol, input_size]
 
-weight_decay = 0
+weight_decay = 0.8
 learning_rate = 0.1
 save_interval = 100
 max_epoch = 2000
@@ -20,7 +20,7 @@ num_heads = 16
 
 ##-----activation-----
 coder_act = 'relu'
-MLP_act = 'sigmoid'
+MLP_act = 'relu'
 
 ##-----file direction--
 training_data_path = './Data/training.csv'
@@ -29,7 +29,6 @@ validation_data_path = './Data/validation.csv'
 model_dir = './Model'
 Transformer_dir = model_dir + '/Transformer_whole'
 Transformer_weight_save_dir = Transformer_dir + '/weight_mtx'
-
 
 ##-----encoder---------
 num_encoder_block = 16

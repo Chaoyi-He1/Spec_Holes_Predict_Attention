@@ -154,11 +154,6 @@ class Transformer_net(nn.Module):
         decoder_outputs = self.dropout_2(decoder_outputs)
 
         decoder_outputs = self.MLP_3(decoder_outputs)
-        if self.act_mode == 'sigmoid':
-            decoder_outputs = torch.sigmoid(decoder_outputs)
-        elif self.act_mode == 'relu':
-            decoder_outputs = torch.relu(decoder_outputs)
-        elif self.act_mode == 'tanh':
-            decoder_outputs = torch.tanh(decoder_outputs)
+        decoder_outputs = torch.sigmoid(decoder_outputs)
 
         return decoder_outputs

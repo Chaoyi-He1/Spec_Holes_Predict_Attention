@@ -54,19 +54,19 @@ class Transformer_model(nn.Module):
 
             if epoch == 1:
                 config.learning_rate = 0.01
-                self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(),
-                                                  lr=config.learning_rate,
-                                                  weight_decay=config.weight_decay)
+                self.optimizer = torch.optim.SGD(params=self.Transformer_autoencoder.parameters(),
+                                                 lr=config.learning_rate,
+                                                 momentum=config.weight_decay)
             elif epoch == int(config.max_epoch * 0.5):
                 config.learning_rate = 0.005
-                self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(),
-                                                  lr=config.learning_rate,
-                                                  weight_decay=config.weight_decay)
+                self.optimizer = torch.optim.SGD(params=self.Transformer_autoencoder.parameters(),
+                                                 lr=config.learning_rate,
+                                                 momentum=config.weight_decay)
             elif epoch == int(config.max_epoch * 0.8):
                 config.learning_rate = 0.001
-                self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(),
-                                                  lr=config.learning_rate,
-                                                  weight_decay=config.weight_decay)
+                self.optimizer = torch.optim.SGD(params=self.Transformer_autoencoder.parameters(),
+                                                 lr=config.learning_rate,
+                                                 momentum=config.weight_decay)
 
             for i in range(num_batches):
                 current_batch_encoder_input = torch.tensor(curr_encoder_inputs[config.batch_size * i:
@@ -91,14 +91,14 @@ class Transformer_model(nn.Module):
                 print('Batch {:d}/{:d} Loss {:.6f}'.format(i, num_batches, loss), end='\r', flush=True)
 
             duration = time.time() - start_time
-            test = torch.eq(torch.round(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:500, :, :],
+            test = torch.eq(torch.round(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:1000, :, :],
                                                                                   dtype=torch.float,
                                                                                   device=config.device),
-                                                                     torch.tensor(curr_decoder_inputs[:500, :, :],
+                                                                     torch.tensor(curr_decoder_inputs[:1000, :, :],
                                                                                   dtype=torch.float,
                                                                                   device=config.device))),
-                            torch.tensor(np.reshape(curr_y_label[:500], (-1, 1)), device=config.device))
-            acc = torch.div(torch.sum(test), 500)
+                            torch.tensor(np.reshape(curr_y_label[:1000], (-1, 1)), device=config.device))
+            acc = torch.div(torch.sum(test), 1000)
             print('Epoch {:d} Loss {:.6f} Accuracy {:.6f} Duration {:.3f} seconds.'.format(epoch, loss_ / num_batches,
                                                                                            acc,
                                                                                            duration))
