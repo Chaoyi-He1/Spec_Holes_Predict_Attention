@@ -38,23 +38,23 @@ class Transformer_model(nn.Module):
 
     def info_for_tensorboard(self, dic_data, loss_train, epochs):
         train_perform = torch.eq(
-            torch.round(self.Transformer_autoencoder(torch.tensor(dic_data["training_input"][:1000, :, :],
-                                                                  dtype=torch.float,
-                                                                  device=config.device),
-                                                     torch.tensor(dic_data["training_input"][:1000, :, :],
-                                                                  dtype=torch.float,
-                                                                  device=config.device))),
-            torch.tensor(np.reshape(dic_data["training_type"][:1000], (-1, 1)), device=config.device))
+            torch.argmax(self.Transformer_autoencoder(torch.tensor(dic_data["training_input"][:1000, :, :],
+                                                                   dtype=torch.float,
+                                                                   device=config.device),
+                                                      torch.tensor(dic_data["training_input"][:1000, :, :],
+                                                                   dtype=torch.float,
+                                                                   device=config.device)), dim=-1),
+            torch.tensor(dic_data["training_type"][:1000], device=config.device))
         train_acc = torch.div(torch.sum(train_perform), 1000).detach().cpu().numpy()
 
         val_perform = torch.eq(
-            torch.round(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
-                                                                  dtype=torch.float,
-                                                                  device=config.device),
-                                                     torch.tensor(dic_data["validating_input"],
-                                                                  dtype=torch.float,
-                                                                  device=config.device))),
-            torch.tensor(np.reshape(dic_data["validating_type"], (-1, 1)), device=config.device))
+            torch.argmax(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
+                                                                   dtype=torch.float,
+                                                                   device=config.device),
+                                                      torch.tensor(dic_data["validating_input"],
+                                                                   dtype=torch.float,
+                                                                   device=config.device)), dim=-1),
+            torch.tensor(dic_data["validating_type"], device=config.device))
         val_acc = torch.div(torch.sum(val_perform), dic_data["validating_input"].shape[0]).detach().cpu().numpy()
         loss_val = self.criterion(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
                                                                             dtype=torch.float,
@@ -62,7 +62,8 @@ class Transformer_model(nn.Module):
                                                                torch.tensor(dic_data["validating_input"],
                                                                             dtype=torch.float,
                                                                             device=config.device)),
-                                  dic_data["validating_type_one_hot"])
+                                  torch.tensor(dic_data["validating_type_one_hot"], dtype=torch.float,
+                                               device=config.device))
 
         self.writer.add_scalars('Loss', {'Train Loss': loss_train,
                                          'Val Loss': loss_val}, epochs)
@@ -118,9 +119,8 @@ class Transformer_model(nn.Module):
                 current_batch_decoder_input = torch.tensor(curr_decoder_inputs[config.batch_size * i:
                                                                                config.batch_size * (i + 1), :, :],
                                                            dtype=torch.float, device=config.device)
-                current_batch_y_train = torch.tensor(np.reshape(curr_y_train[config.batch_size * i:
-                                                                             config.batch_size * (i + 1)],
-                                                                (-1, config.output_size)),
+                current_batch_y_train = torch.tensor(curr_y_train[config.batch_size * i:
+                                                                  config.batch_size * (i + 1), :],
                                                      dtype=torch.float, device=config.device)
 
                 curr_batch_y_pred = self.Transformer_autoencoder(current_batch_encoder_input,
@@ -136,18 +136,18 @@ class Transformer_model(nn.Module):
 
             duration = time.time() - start_time
             train_perform = torch.eq(
-                torch.round(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:1000, :, :],
-                                                                      dtype=torch.float,
-                                                                      device=config.device),
-                                                         torch.tensor(curr_encoder_inputs[:1000, :, :],
-                                                                      dtype=torch.float,
-                                                                      device=config.device))),
-                torch.tensor(np.reshape(curr_y_label[:1000], (-1, 1)), device=config.device))
+                torch.argmax(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:1000, :, :],
+                                                                       dtype=torch.float,
+                                                                       device=config.device),
+                                                          torch.tensor(curr_encoder_inputs[:1000, :, :],
+                                                                       dtype=torch.float,
+                                                                       device=config.device)), dim=-1),
+                torch.tensor(curr_y_label[:1000], device=config.device))
             train_acc = torch.div(torch.sum(train_perform), 1000)
             print('Epoch {:d} Loss {:.6f} Accuracy {:.6f} Duration {:.3f} seconds.'.format(epoch, loss_ / num_batches,
                                                                                            train_acc,
                                                                                            duration))
-            self.info_for_tensorboard(self, dic_data, loss_.item() / num_batches, epochs=epoch)
+            self.info_for_tensorboard(dic_data, loss_.item() / num_batches, epochs=epoch)
             if epoch % config.save_interval == 0:
                 self.save(epoch)
 
