@@ -11,7 +11,8 @@ def data_reader(train=False, val=False, test=False):
         data_dic.update(zip(["training_input", "training_type_one_hot", "training_type"],
                             [training_input, training_type_one_hot, training_type]))
     if val:
-        validating_input, validating_type_one_hot, validating_type = read_data.validating_read(config.validate_data_path)
+        validating_input, validating_type_one_hot, validating_type = read_data.validating_read(
+            config.validation_data_path)
         data_dic.update(zip(["validating_input", "validating_type_one_hot", "validating_type"],
                             [validating_input, validating_type_one_hot, validating_type]))
     if test:
