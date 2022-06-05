@@ -119,7 +119,8 @@ class Transformer_model(nn.Module):
                                                                                config.batch_size * (i + 1), :, :],
                                                            dtype=torch.float, device=config.device)
                 current_batch_y_train = torch.tensor(np.reshape(curr_y_train[config.batch_size * i:
-                                                                             config.batch_size * (i + 1)], (-1, 1)),
+                                                                             config.batch_size * (i + 1)],
+                                                                (-1, config.output_size)),
                                                      dtype=torch.float, device=config.device)
 
                 curr_batch_y_pred = self.Transformer_autoencoder(current_batch_encoder_input,
