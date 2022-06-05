@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from collections import OrderedDict
 from torchsummary import summary
-import gym
+from torch.utils.tensorboard import SummaryWriter
 
 
 class Transformer_model(nn.Module):
@@ -19,7 +19,8 @@ class Transformer_model(nn.Module):
                                                                num_decoder_block=config.num_decoder_block,
                                                                act_mode=config.MLP_act).to(
             device=config.device)
-        self.criterion = nn.BCELoss().to(device=config.device)
+        self.writer = SummaryWriter('runs/Transformer_test_1')
+        self.criterion = nn.CrossEntropyLoss().to(device=config.device)
         self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
                                           weight_decay=config.weight_decay)
 
@@ -35,8 +36,50 @@ class Transformer_model(nn.Module):
         self.Transformer_autoencoder.load_state_dict(ckpt, strict=True)
         print("Restored model parameters from {}".format(checkpoint_name))
 
-    def train(self, encoder_inputs, decoder_inputs, y_train, y_label):
+    def info_for_tensorboard(self, dic_data, loss_train, epochs):
+        train_perform = torch.eq(
+            torch.round(self.Transformer_autoencoder(torch.tensor(dic_data["training_input"][:1000, :, :],
+                                                                  dtype=torch.float,
+                                                                  device=config.device),
+                                                     torch.tensor(dic_data["training_input"][:1000, :, :],
+                                                                  dtype=torch.float,
+                                                                  device=config.device))),
+            torch.tensor(np.reshape(dic_data["training_type"][:1000], (-1, 1)), device=config.device))
+        train_acc = torch.div(torch.sum(train_perform), 1000).detach().cpu().numpy()
+
+        val_perform = torch.eq(
+            torch.round(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
+                                                                  dtype=torch.float,
+                                                                  device=config.device),
+                                                     torch.tensor(dic_data["validating_input"],
+                                                                  dtype=torch.float,
+                                                                  device=config.device))),
+            torch.tensor(np.reshape(dic_data["validating_type"], (-1, 1)), device=config.device))
+        val_acc = torch.div(torch.sum(val_perform), dic_data["validating_input"].shape[0]).detach().cpu().numpy()
+        loss_val = self.criterion(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
+                                                                            dtype=torch.float,
+                                                                            device=config.device),
+                                                               torch.tensor(dic_data["validating_input"],
+                                                                            dtype=torch.float,
+                                                                            device=config.device)),
+                                  dic_data["validating_type_one_hot"])
+
+        self.writer.add_scalars('Loss', {'Train Loss': loss_train,
+                                         'Val Loss': loss_val}, epochs)
+        self.writer.add_scalars('Accuracy', {'Train Accuracy': train_acc,
+                                             'Val Accuracy': val_acc}, epochs)
+
+    def train(self, dic_data):
+        encoder_inputs = dic_data["training_input"]
+        decoder_inputs = dic_data["training_input"]
+        y_train = dic_data["training_type_one_hot"]
+        y_label = dic_data["training_type"]
+
         self.Transformer_autoencoder.train()
+        self.writer.add_graph(self.Transformer_autoencoder, [torch.rand((1, 32, 256), device=config.device,
+                                                                        dtype=torch.float),
+                                                             torch.rand((1, 32, 256), device=config.device,
+                                                                        dtype=torch.float)])
         # summary(self.Transformer_autoencoder, [(32, 256), (32, 256)])
 
         num_samples = encoder_inputs.shape[0]
@@ -75,7 +118,7 @@ class Transformer_model(nn.Module):
                 current_batch_decoder_input = torch.tensor(curr_decoder_inputs[config.batch_size * i:
                                                                                config.batch_size * (i + 1), :, :],
                                                            dtype=torch.float, device=config.device)
-                current_batch_y_train = torch.tensor(np.reshape(curr_y_label[config.batch_size * i:
+                current_batch_y_train = torch.tensor(np.reshape(curr_y_train[config.batch_size * i:
                                                                              config.batch_size * (i + 1)], (-1, 1)),
                                                      dtype=torch.float, device=config.device)
 
@@ -91,21 +134,29 @@ class Transformer_model(nn.Module):
                 print('Batch {:d}/{:d} Loss {:.6f}'.format(i, num_batches, loss), end='\r', flush=True)
 
             duration = time.time() - start_time
-            test = torch.eq(torch.round(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:1000, :, :],
-                                                                                  dtype=torch.float,
-                                                                                  device=config.device),
-                                                                     torch.tensor(curr_decoder_inputs[:1000, :, :],
-                                                                                  dtype=torch.float,
-                                                                                  device=config.device))),
-                            torch.tensor(np.reshape(curr_y_label[:1000], (-1, 1)), device=config.device))
-            acc = torch.div(torch.sum(test), 1000)
+            train_perform = torch.eq(
+                torch.round(self.Transformer_autoencoder(torch.tensor(curr_encoder_inputs[:1000, :, :],
+                                                                      dtype=torch.float,
+                                                                      device=config.device),
+                                                         torch.tensor(curr_encoder_inputs[:1000, :, :],
+                                                                      dtype=torch.float,
+                                                                      device=config.device))),
+                torch.tensor(np.reshape(curr_y_label[:1000], (-1, 1)), device=config.device))
+            train_acc = torch.div(torch.sum(train_perform), 1000)
             print('Epoch {:d} Loss {:.6f} Accuracy {:.6f} Duration {:.3f} seconds.'.format(epoch, loss_ / num_batches,
-                                                                                           acc,
+                                                                                           train_acc,
                                                                                            duration))
+            self.info_for_tensorboard(self, dic_data, loss_.item() / num_batches, epochs=epoch)
             if epoch % config.save_interval == 0:
                 self.save(epoch)
 
-    def test_or_validate(self, encoder_inputs, decoder_inputs, y, checkpoint_num_list):
+        self.writer.close()
+
+    def test_or_validate(self, dic_data, checkpoint_num_list):
+        encoder_inputs = dic_data["testing_input"]
+        decoder_inputs = dic_data["testing_input"]
+        y = dic_data["testing_type"]
+
         self.Transformer_autoencoder.eval()
         print('### Test or Validation ###')
 
