@@ -19,7 +19,7 @@ class Transformer_model(nn.Module):
                                                                num_decoder_block=config.num_decoder_block,
                                                                act_mode=config.MLP_act).to(
             device=config.device)
-        self.writer = SummaryWriter('runs/Transformer_test_1')
+        self.writer = SummaryWriter('runs/Transformer_test_2')
         self.criterion = nn.CrossEntropyLoss().to(device=config.device)
         self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
                                           weight_decay=config.weight_decay)
@@ -48,21 +48,21 @@ class Transformer_model(nn.Module):
         train_acc = torch.div(torch.sum(train_perform), 1000).detach().cpu().numpy()
 
         val_perform = torch.eq(
-            torch.argmax(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
+            torch.argmax(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"][:1000, :, :],
                                                                    dtype=torch.float,
                                                                    device=config.device),
-                                                      torch.tensor(dic_data["validating_input"],
+                                                      torch.tensor(dic_data["validating_input"][:1000, :, :],
                                                                    dtype=torch.float,
                                                                    device=config.device)), dim=-1),
-            torch.tensor(dic_data["validating_type"], device=config.device))
-        val_acc = torch.div(torch.sum(val_perform), dic_data["validating_input"].shape[0]).detach().cpu().numpy()
-        loss_val = self.criterion(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"],
+            torch.tensor(dic_data["validating_type"][:1000], device=config.device))
+        val_acc = torch.div(torch.sum(val_perform), 1000).detach().cpu().numpy()
+        loss_val = self.criterion(self.Transformer_autoencoder(torch.tensor(dic_data["validating_input"][:1000, :, :],
                                                                             dtype=torch.float,
                                                                             device=config.device),
-                                                               torch.tensor(dic_data["validating_input"],
+                                                               torch.tensor(dic_data["validating_input"][:1000, :, :],
                                                                             dtype=torch.float,
                                                                             device=config.device)),
-                                  torch.tensor(dic_data["validating_type_one_hot"], dtype=torch.float,
+                                  torch.tensor(dic_data["validating_type_one_hot"][:1000, :], dtype=torch.float,
                                                device=config.device))
 
         self.writer.add_scalars('Loss', {'Train Loss': loss_train,

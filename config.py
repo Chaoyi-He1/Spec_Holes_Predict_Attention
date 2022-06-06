@@ -23,7 +23,7 @@ coder_act = 'relu'
 MLP_act = 'relu'
 
 ##-----file direction--
-training_data_path = './Data/training.csv'
+training_data_path = './Data/testing.csv'
 testing_data_path = './Data/testing.csv'
 validation_data_path = './Data/testing.csv'
 model_dir = './Model'
