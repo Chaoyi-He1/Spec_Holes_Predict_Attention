@@ -23,9 +23,9 @@ coder_act = 'relu'
 MLP_act = 'relu'
 
 ##-----file direction--
-training_data_path = './Data/testing.csv'
+training_data_path = './Data/training.csv'
 testing_data_path = './Data/testing.csv'
-validation_data_path = './Data/testing.csv'
+validation_data_path = './Data/testing_same_SNR.csv'
 model_dir = './Model'
 Transformer_dir = model_dir + '/Transformer_whole'
 Transformer_weight_save_dir = Transformer_dir + '/weight_mtx'

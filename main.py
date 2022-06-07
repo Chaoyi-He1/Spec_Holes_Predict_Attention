@@ -23,9 +23,9 @@ def data_reader(train=False, val=False, test=False):
 
 
 if __name__ == '__main__':
-    dic_data = data_reader(train=True, val=True, test=True)
+    dic_data = data_reader(train=True, val=True, test=False)
 
     Transformer_model = model.Transformer_model()
     Transformer_model.train(dic_data=dic_data)
-    Transformer_model.test_or_validate(dic_data=dic_data,
-                                       checkpoint_num_list=[100, 200, 300, 400, 500, 600, 700, 800, 900])
+    # Transformer_model.test_or_validate(dic_data=dic_data,
+    #                                    checkpoint_num_list=[100, 200, 300, 400, 500, 600, 700, 800, 900])
