@@ -19,7 +19,7 @@ class Transformer_model(nn.Module):
                                                                num_decoder_block=config.num_decoder_block,
                                                                act_mode=config.MLP_act).to(
             device=config.device)
-        self.writer = SummaryWriter('runs/Transformer_test_2')
+        self.writer = SummaryWriter('runs/Transformer_test_7')
         self.criterion = nn.CrossEntropyLoss().to(device=config.device)
         self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
                                           weight_decay=config.weight_decay)

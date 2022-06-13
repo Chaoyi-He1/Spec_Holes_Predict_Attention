@@ -12,7 +12,7 @@ sig_shape = [-1, input_num_symbol, input_size]
 
 weight_decay = 0.8
 learning_rate = 0.1
-save_interval = 100
+save_interval = 10
 max_epoch = 50
 
 embedded_dim = input_size
@@ -23,15 +23,15 @@ coder_act = 'relu'
 MLP_act = 'relu'
 
 ##-----file direction--
-training_data_path = './Data/training.csv'
-testing_data_path = './Data/testing.csv'
-validation_data_path = './Data/testing_same_SNR.csv'
+training_data_path = './Data/Data_continuousSNR_20dB_30dB_200radarwaveforms/data.csv'
+testing_data_path = './Data/Data_continuousSNR_1dB_6dB_200waveforms/data.csv'
+validation_data_path = './Data/Data_continuousSNR_1dB_6dB_200waveforms/data.csv'
 model_dir = './Model'
 Transformer_dir = model_dir + '/Transformer_whole'
 Transformer_weight_save_dir = Transformer_dir + '/weight_mtx'
 
 ##-----encoder---------
-num_encoder_block = 4
+num_encoder_block = 16
 encoder_drop_rate = 0.1
 encoder_dense_dim = 512
 encoder_norm_mode = 'layer'     #'batch' or 'layer'
