@@ -21,8 +21,7 @@ class Transformer_model(nn.Module):
             device=config.device)
         self.writer = SummaryWriter('runs/Transformer_test_7')
         self.criterion = nn.CrossEntropyLoss().to(device=config.device)
-        self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,
-                                          weight_decay=config.weight_decay)
+        self.optimizer = torch.optim.Adam(params=self.Transformer_autoencoder.parameters(), lr=config.learning_rate,                                     weight_decay=config.weight_decay)
 
     def save(self, epoch):
         checkpoint_path = os.path.join(config.Transformer_dir, 'model-%d.ckpt' % (epoch))
